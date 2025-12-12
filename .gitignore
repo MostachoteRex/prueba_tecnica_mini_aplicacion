@@ -16,10 +16,6 @@ build/
 .env.test.local
 .env.production.local
 
-# Docker
-*.dockerignore
-!/.dockerignore
-
 # IDE
 .vscode/
 .idea/
@@ -39,11 +35,11 @@ logs/
 coverage/
 .nyc_output/
 
-# Backend específico
+# Backend
 backend/.env
 backend/dist/
 
-# Frontend específico
+# Frontend
 frontend/build/
 frontend/.env
 frontend/.env.local
