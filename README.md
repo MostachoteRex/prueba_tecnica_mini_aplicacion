@@ -1,135 +1,306 @@
-# 🛒 Shopping List App - Aplicación Full-stack
+# Shopping List App
 
-Aplicación Full-stack para gestionar una lista de compras con backend en Node.js/Express/TypeScript, frontend en React/TypeScript y PostgreSQL como base de datos.
+Una aplicación de lista de compras full-stack con React (frontend) y Node.js + Express (backend) utilizando PostgreSQL como base de datos.
 
-# 🚀 Instalación
+## 📋 Requisitos Previos
 
-Opción 1: Con Docker
-1. Clonar el repositorio
+- **Node.js** v18+ ([descargar](https://nodejs.org/))
+- **PostgreSQL** v15+ ([descargar](https://www.postgresql.org/download/))
+- **npm** (incluido con Node.js)
 
-       git clone https://github.com/tu-usuario/shopping-list-app.git
-       cd shopping-list-app
+## 🚀 Instalación y Configuración
 
-2. Ejecutar con Docker Compose
+### 1️⃣ Clonar o descargar el proyecto
 
-       docker-compose up -d
+```bash
+cd c:\Users\MostachoteRex\Documents\shopping-list-app
+```
 
-3. Acceder a:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
+### 2️⃣ Configurar Base de Datos PostgreSQL
 
-Opción 2: Sin Docker (Desarrollo Local)
-- Requisitos: Node.js 18+, PostgreSQL 15+
-1. Configurar PostgreSQL
+#### Opción A: Usando psql (línea de comandos)
 
-       createdb shopping_list
-       psql -U postgres -d shopping_list -f backend/database/schema.sql
-2. Backend (Terminal 1)
+1. Abre PowerShell o CMD
+2. Conecta a PostgreSQL:
 
-       cd backend
-       npm install
-       cp .env.example .env  # Editar si es necesario
-       npm run dev
-# 📁 Estructura del Proyecto
-text
+```powershell
+psql -U postgres
+```
+
+3. Crea la base de datos:
+
+```sql
+CREATE DATABASE shopping_list;
+```
+
+4. Sal de psql:
+
+```sql
+\q
+```
+
+5. Ejecuta el script de inicialización:
+
+```powershell
+cd .\backend\database
+psql -U postgres -d shopping_list -f schema.sql
+```
+
+#### Opción B: Usando pgAdmin (interfaz gráfica)
+
+1. Abre pgAdmin
+2. Clic derecho en "Databases" → "Create" → "Database"
+3. Nombre: `shopping_list`
+4. Clic en "Create"
+5. Abre Query Tool y ejecuta el contenido de `backend/database/schema.sql`
+
+### 3️⃣ Configurar Backend
+
+1. Navega a la carpeta backend:
+
+```powershell
+cd .\backend
+```
+
+2. Instala las dependencias:
+
+```powershell
+npm install
+```
+
+3. Crea el archivo `.env` en la carpeta `backend/`:
+
+```powershell
+cp .env.example .env
+```
+
+4. Verifica que el `.env` tenga los valores correctos (por defecto están listos):
+
+```env
+PORT=3001
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=shopping_list
+DB_USER=postgres
+DB_PASSWORD=password
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+> **Nota:** Si tu contraseña de PostgreSQL es diferente, actualiza `DB_PASSWORD` en el `.env`
+
+5. Compila TypeScript:
+
+```powershell
+npm run build
+```
+
+6. Inicia el servidor:
+
+```powershell
+npm start
+```
+
+✅ Backend ejecutándose en `http://localhost:3001`
+
+### 4️⃣ Configurar Frontend
+
+1. En una **nueva ventana de PowerShell/Terminal**, navega a frontend:
+
+```powershell
+cd .\frontend
+```
+
+2. Instala las dependencias:
+
+```powershell
+npm install
+```
+
+3. Inicia el servidor de desarrollo:
+
+```powershell
+npm start
+```
+
+✅ Frontend ejecutándose en `http://localhost:3000`
+
+## 📁 Estructura del Proyecto
+
+```
 shopping-list-app/
-
-├── backend/          # API REST (Node.js + Express + TypeScript)
-
-├── frontend/         # Aplicación React + TypeScript
-
-├── docker-compose.yml
-
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── database.ts          # Conexión a PostgreSQL
+│   │   ├── models/
+│   │   │   └── item.model.ts        # Interfaces de tipos
+│   │   ├── controllers/
+│   │   │   └── item.controller.ts   # Lógica HTTP
+│   │   ├── services/
+│   │   │   └── item.services.ts     # Lógica de negocio
+│   │   ├── routes/
+│   │   │   └── item.routes.ts       # Rutas API
+│   │   └── index.ts                 # Punto de entrada
+│   ├── database/
+│   │   └── schema.sql               # Script de inicialización DB
+│   ├── .env.example                 # Variables de entorno ejemplo
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── context/
+│   │   │   └── ItemContext.tsx      # Estado global (React Context)
+│   │   ├── services/
+│   │   │   └── api.ts              # Cliente HTTP (axios)
+│   │   ├── types/
+│   │   │   └── item.ts             # Tipos TypeScript
+│   │   ├── components/
+│   │   │   └── ...                 # Componentes React
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── public/
+│   └── package.json
+│
 └── README.md
+```
 
-# 🔧 Configuración de Base de Datos
-PostgreSQL Setup
+## 🔌 API Endpoints
 
-Crear base de datos
+### Base URL: `http://localhost:3001/api`
 
-    createdb shopping_list
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/items` | Obtener todos los items |
+| `POST` | `/items` | Crear nuevo item |
+| `PUT` | `/items/:id` | Actualizar item |
+| `DELETE` | `/items/:id` | Eliminar item |
 
-Crear tabla (ejecutar en psql o usar el archivo)
-    
-    psql -U postgres -d shopping_list -f backend/database/schema.sql
+### Ejemplo de uso
 
-Schema SQL:
+**Obtener todos los items:**
 
-    CREATE TABLE items_compra (
-      id SERIAL PRIMARY KEY,
-      nombre VARCHAR(255) NOT NULL,
-      cantidad INTEGER DEFAULT 1,
-      comprado BOOLEAN DEFAULT FALSE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+```bash
+curl http://localhost:3001/api/items
+```
 
-# 🚦 Ejecutar la Aplicación
-- Backend (Node.js API)
+**Crear un item:**
 
-      cd backend
-      npm install
-      npm run dev
-      # API disponible en: http://localhost:3001
+```bash
+curl -X POST http://localhost:3001/api/items \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Manzanas","cantidad":5}'
+```
 
-- Frontend (React App)
+**Actualizar un item:**
 
-      cd frontend
-      npm install
-      npm start
-      # App disponible en: http://localhost:3000
+```bash
+curl -X PUT http://localhost:3001/api/items/1 \
+  -H "Content-Type: application/json" \
+  -d '{"comprado":true}'
+```
 
-#📡 Endpoints API
-- GET /api/items - Obtener todos los items
-- POST /api/items - Crear nuevo item
-- PUT /api/items/:id - Actualizar item
-- DELETE /api/items/:id - Eliminar item
+**Eliminar un item:**
 
-Ejemplo:
+```bash
+curl -X DELETE http://localhost:3001/api/items/1
+```
 
+## 📝 Variables de Entorno
 
-      curl -X POST http://localhost:3001/api/items \
-        -H "Content-Type: application/json" \
-        -d '{"nombre": "Manzanas", "cantidad": 5}'
+### Backend (`.env`)
 
-# 🐳 Comandos Docker
+```env
+PORT=3001                           # Puerto del servidor
+DB_HOST=localhost                   # Host de PostgreSQL
+DB_PORT=5432                        # Puerto de PostgreSQL
+DB_NAME=shopping_list               # Nombre de la base de datos
+DB_USER=postgres                    # Usuario de PostgreSQL
+DB_PASSWORD=password                # Contraseña de PostgreSQL
+FRONTEND_URL=http://localhost:3000  # URL del frontend (CORS)
+NODE_ENV=development                # Ambiente: development | production
+```
 
+### Frontend (`.env` - opcional)
 
-      # Iniciar todo
-      docker-compose up -d
+Puedes crear un `.env` en frontend para configurar:
 
-      # Ver logs
-      docker-compose logs -f
+```env
+REACT_APP_API_URL=http://localhost:3001/api
+```
 
-      # Detener
-      docker-compose down
+## 🛠️ Scripts Disponibles
 
-      # Reconstruir
-      docker-compose up -d --build
+### Backend
 
-# 🔗 Variables de Entorno
-Backend (.env)
+```powershell
+npm start       # Ejecutar servidor en desarrollo
+npm run build   # Compilar TypeScript
+npm run dev     # Ejecutar con nodemon (watch mode)
+npm test        # Ejecutar pruebas
+```
 
-      PORT=3001
-      DB_HOST=localhost
-      DB_PORT=5432
-      DB_NAME=shopping_list
-      DB_USER=postgres
-      DB_PASSWORD=tu_password
-      FRONTEND_URL=http://localhost:3000
+### Frontend
 
-Frontend (.env)
+```powershell
+npm start       # Ejecutar servidor de desarrollo
+npm run build   # Compilar para producción
+npm test        # Ejecutar pruebas
+npm run eject   # Ejecer configuración (irreversible)
+```
 
-      REACT_APP_API_URL=http://localhost:3001/api
+## 🐛 Solución de Problemas
 
-# 🖥️ Funcionalidades
-✅ Ver lista de items
+### Error: "Cannot find module 'axios'"
 
-✅ Agregar nuevos items
+```powershell
+cd frontend
+npm install axios
+```
 
-✅ Marcar como comprado
+### Error: "Database connection failed"
 
-✅ Eliminar items
+1. Verifica que PostgreSQL esté corriendo
+2. Comprueba las credenciales en `.env`
+3. Asegúrate de que la base de datos `shopping_list` existe
 
-✅ Diseño responsive
+```powershell
+psql -U postgres -l  # Listar todas las bases de datos
+```
 
-✅ TypeScript en frontend y backend
+### Error: "Port 3001 already in use"
+
+Cambia el puerto en `backend/.env`:
+
+```env
+PORT=3002
+```
+
+### Error: "Port 3000 already in use"
+
+Mata el proceso o usa un puerto diferente:
+
+```powershell
+# Encontrar proceso en puerto 3000
+Get-NetTCPConnection -LocalPort 3000
+
+# Matar proceso (reemplazar PID)
+Stop-Process -Id <PID> -Force
+```
+
+## 📦 Dependencias Principales
+
+### Backend
+- **express** - Framework web
+- **pg** - Cliente PostgreSQL
+- **typescript** - Lenguaje tipado
+- **cors** - Control de origen cruzado
+- **dotenv** - Variables de entorno
+
+### Frontend
+- **react** - Librería UI
+- **react-dom** - DOM de React
+- **axios** - Cliente HTTP
+- **typescript** - Lenguaje tipado
+- **react-scripts** - Build tools
