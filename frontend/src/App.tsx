@@ -7,9 +7,7 @@ const App: React.FC = () => {
   return (
     <ItemProvider>
       <div className="App">
-        <header className="App-header">
-          <ItemList />
-        </header>
+        <ItemList />
       </div>
     </ItemProvider>
   );

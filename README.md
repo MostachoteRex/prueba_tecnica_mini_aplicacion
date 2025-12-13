@@ -1,11 +1,11 @@
 # Shopping List App
 
-Una aplicación de lista de compras full-stack con React (frontend) y Node.js + Express (backend) utilizando PostgreSQL como base de datos.
+Una aplicación de lista de compras full-stack con React (frontend) y Node.js + Express (backend) utilizando MongoDB como base de datos con Docker.
 
 ## 📋 Requisitos Previos
 
 - **Node.js** v18+ ([descargar](https://nodejs.org/))
-- **PostgreSQL** v15+ ([descargar](https://www.postgresql.org/download/))
+- **Docker** y **Docker Compose** ([descargar](https://www.docker.com/products/docker-desktop))
 - **npm** (incluido con Node.js)
 
 ## 🚀 Instalación y Configuración
@@ -16,43 +16,22 @@ Una aplicación de lista de compras full-stack con React (frontend) y Node.js + 
 cd c:\Users\MostachoteRex\Documents\shopping-list-app
 ```
 
-### 2️⃣ Configurar Base de Datos PostgreSQL
+### 2️⃣ Iniciar MongoDB con Docker
 
-#### Opción A: Usando psql (línea de comandos)
-
-1. Abre PowerShell o CMD
-2. Conecta a PostgreSQL:
+1. Asegúrate de que Docker Desktop está ejecutándose
+2. Desde la raíz del proyecto, inicia MongoDB:
 
 ```powershell
-psql -U postgres
+docker-compose up -d
 ```
 
-3. Crea la base de datos:
-
-```sql
-CREATE DATABASE shopping_list;
-```
-
-4. Sal de psql:
-
-```sql
-\q
-```
-
-5. Ejecuta el script de inicialización:
+3. Verifica que MongoDB esté corriendo:
 
 ```powershell
-cd .\backend\database
-psql -U postgres -d shopping_list -f schema.sql
+docker ps
 ```
 
-#### Opción B: Usando pgAdmin (interfaz gráfica)
-
-1. Abre pgAdmin
-2. Clic derecho en "Databases" → "Create" → "Database"
-3. Nombre: `shopping_list`
-4. Clic en "Create"
-5. Abre Query Tool y ejecuta el contenido de `backend/database/schema.sql`
+Deberías ver un contenedor llamado `shopping-list-mongodb` en estado `Up`.
 
 ### 3️⃣ Configurar Backend
 
@@ -95,20 +74,16 @@ NODE_ENV=development
 npm run build
 ```
 
-6. Inicia el servidor:
+6. Inicia el servidor::
 
-```powershell
-npm start
+```env
+PORT=3001
+MONGODB_URI=mongodb://localhost:27017/shopping_list
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=development
 ```
 
-✅ Backend ejecutándose en `http://localhost:3001`
-
-### 4️⃣ Configurar Frontend
-
-1. En una **nueva ventana de PowerShell/Terminal**, navega a frontend:
-
-```powershell
-cd .\frontend
+> **Nota:** La URI de MongoDB debe coincidir con el servicio en `docker-compose.yml
 ```
 
 2. Instala las dependencias:
@@ -127,6 +102,33 @@ npm start
 
 ## 📁 Estructura del Proyecto
 
+```
+
+## 🐳 Gestionar Docker
+
+### Iniciar MongoDB
+mongodb.ts           # Conexión a MongoDB
+│   │   ├── models/
+│   │   │   └── item.model.ts        # Schema de Mongoose
+│   │   ├── controllers/
+│   │   │   └── item.controller.ts   # Lógica HTTP
+│   │   ├── services/
+│   │   │   └── item.service.ts      # Lógica de negocio
+│   │   ├── routes/
+│   │   │   └── item.routes.ts       # Rutas API
+│   │   └── index.ts                 # Punto de entrada
+│   ├── database/
+│   │   └── schema.sql               # Script anterior (PostgreSQL - deprecado)
+│   ├── .env.example                 # Variables de entorno ejemplo
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── docker-compose.yml           # Configuración MongoDBf mongodb
+```
+
+### Conectar a MongoDB directamente
+
+```powershell
+docker exec -it shopping-list-mongodb mongosh
 ```
 shopping-list-app/
 ├── backend/
@@ -174,6 +176,7 @@ shopping-list-app/
 |--------|----------|-------------|
 | `GET` | `/items` | Obtener todos los items |
 | `POST` | `/items` | Crear nuevo item |
+| `PATCH` | `/items/:id/toggle` | Marcar/desmarcar como comprado |
 | `PUT` | `/items/:id` | Actualizar item |
 | `DELETE` | `/items/:id` | Eliminar item |
 
@@ -195,23 +198,26 @@ curl -X POST http://localhost:3001/api/items \
 
 **Actualizar un item:**
 
-```bash
-curl -X PUT http://localhost:3001/api/items/1 \
+```bash507f1f77bcf86cd799439011 \
   -H "Content-Type: application/json" \
   -d '{"comprado":true}'
+```
+
+**Marcar como comprado/pendiente:**
+
+```bash
+curl -X PATCH http://localhost:3001/api/items/507f1f77bcf86cd799439011/toggle \
+  -H "Content-Type: application/json"
 ```
 
 **Eliminar un item:**
 
 ```bash
-curl -X DELETE http://localhost:3001/api/items/1
-```
-
-## 📝 Variables de Entorno
-
-### Backend (`.env`)
-
-```env
+curl -X DELETE http://localhost:3001/api/items/507f1f77bcf86cd79943901
+curl -X DELETE http://localhost:3001           # Puerto del servidor
+MONGODB_URI=mongodb://localhost:27017/shopping_list  # URI de MongoDB
+FRONTEND_URL=http://localhost:3000             # URL del frontend (CORS)
+NODE_ENV=development           
 PORT=3001                           # Puerto del servidor
 DB_HOST=localhost                   # Host de PostgreSQL
 DB_PORT=5432                        # Puerto de PostgreSQL
@@ -249,24 +255,26 @@ npm run build   # Compilar para producción
 npm test        # Ejecutar pruebas
 npm run eject   # Ejecer configuración (irreversible)
 ```
+MongoDB connection failed"
 
-## 🐛 Solución de Problemas
-
-### Error: "Cannot find module 'axios'"
+1. Verifica que Docker está ejecutándose
+2. Asegúrate de que MongoDB está iniciado:
 
 ```powershell
-cd frontend
-npm install axios
+docker-compose up -d
 ```
 
-### Error: "Database connection failed"
-
-1. Verifica que PostgreSQL esté corriendo
-2. Comprueba las credenciales en `.env`
-3. Asegúrate de que la base de datos `shopping_list` existe
+3. Comprueba los logs:
 
 ```powershell
-psql -U postgres -l  # Listar todas las bases de datos
+docker-compose logs mongodb
+```
+
+### Error: "Cannot find module 'mongoose'"
+
+```powershell
+cd backend
+npm install
 ```
 
 ### Error: "Port 3001 already in use"
@@ -289,6 +297,18 @@ Get-NetTCPConnection -LocalPort 3000
 Stop-Process -Id <PID> -Force
 ```
 
+### Limpiar datos de MongoDB
+
+```powershell
+docker-compose down -v
+docker-compose up -d
+```
+mongoose** - ODM para MongoDB
+> ⚠️ **Nota:** Esto eliminará todos los datos almacenados en MongoDB
+# Matar proceso (reemplazar PID)
+Stop-Process -Id <PID> -Force
+```
+
 ## 📦 Dependencias Principales
 
 ### Backend
@@ -304,3 +324,19 @@ Stop-Process -Id <PID> -Force
 - **axios** - Cliente HTTP
 - **typescript** - Lenguaje tipado
 - **react-scripts** - Build tools
+
+## 🎯 Próximos Pasos
+
+- [ ] Implementar autenticación (JWT)
+- [ ] Agregar validaciones avanzadas
+- [ ] Crear pruebas unitarias
+- [ ] Agregar categorías a items
+- [ ] Implementar búsqueda y filtros
+
+## 📄 Licencia
+
+Este proyecto es de uso personal.
+
+## 👨‍💻 Autor
+
+Desarrollado con ❤️

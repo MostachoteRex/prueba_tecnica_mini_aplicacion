@@ -1,0 +1,58 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: shopping-list-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - shopping-network
+
+  backend:
+    build: ./backend
+    container_name: shopping-list-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://mongodb:27017/shopping_list
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - shopping-network
+    command: sh -c "npm install && npm run dev"
+
+  frontend:
+    build: ./frontend
+    container_name: shopping-list-frontend
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://localhost:3001/api
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - shopping-network
+    command: sh -c "npm install && npm start"
+
+networks:
+  shopping-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { Item } from '../types/item';
 import { itemAPI } from '../services/api';
 
@@ -8,8 +8,8 @@ interface ItemContextType {
     error: string | null;
     fetchItems: () => Promise<void>;
     addItem: (nombre: string, cantidad: number) => Promise<void>;
-    toggleItem: (id: number, comprado: boolean) => Promise<void>;
-    deleteItem: (id: number) => Promise<void>;
+    toggleItem: (id: string) => Promise<void>;
+    deleteItem: (id: string) => Promise<void>;
 }
 
 const ItemContext = createContext<ItemContextType | undefined>(undefined);
@@ -59,12 +59,12 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         }
     };
 
-    const toggleItem = async (id: number, comprado: boolean) => {
+    const toggleItem = async (id: string) => {
         setLoading(true);
         try {
-            const response = await itemAPI.updateItem(id, { comprado: !comprado });
+            const response = await itemAPI.toggleItem(id);
             setItems(prev =>
-                prev.map(item => item.id === id ? (response.data as Item) : item)
+                prev.map(item => item._id === id ? (response.data as Item) : item)
             );
         } catch (err) {
             setError('Error al actualizar el item');
@@ -74,11 +74,11 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         }
     };
 
-    const deleteItem = async (id: number) => {
+    const deleteItem = async (id: string) => {
         setLoading(true);
         try {
             await itemAPI.deleteItem(id);
-            setItems(prev => prev.filter(item => item.id !== id));
+            setItems(prev => prev.filter(item => item._id !== id));
         } catch (err) {
             setError('Error al eliminar el item');
             console.error(err);
@@ -86,6 +86,10 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
 
     return (
         <ItemContext.Provider value={{

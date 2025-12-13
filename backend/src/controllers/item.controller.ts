@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { ItemService } from '../services/item.services';
-import { CreateItemDTO, UpdateItemDTO } from '../models/item.model';
+import { ItemService, CreateItemDTO, UpdateItemDTO } from '../services/item.service';
 
 const itemService = new ItemService();
 
@@ -32,13 +31,8 @@ export class ItemController {
 
     async updateItem(req: Request, res: Response): Promise<void> {
         try {
-            const id = parseInt(req.params.id);
+            const { id } = req.params;
             const itemData: UpdateItemDTO = req.body;
-
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
 
             const updatedItem = await itemService.updateItem(id, itemData);
 
@@ -55,13 +49,7 @@ export class ItemController {
 
     async deleteItem(req: Request, res: Response): Promise<void> {
         try {
-            const id = parseInt(req.params.id);
-
-            if (isNaN(id)) {
-                res.status(400).json({ error: 'ID inválido' });
-                return;
-            }
-
+            const { id } = req.params;
             const deleted = await itemService.deleteItem(id);
 
             if (!deleted) {
@@ -72,6 +60,22 @@ export class ItemController {
             res.status(204).send();
         } catch (error) {
             res.status(500).json({ error: 'Error al eliminar el item' });
+        }
+    }
+
+    async toggleItem(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const toggledItem = await itemService.toggleItem(id);
+
+            if (!toggledItem) {
+                res.status(404).json({ error: 'Item no encontrado' });
+                return;
+            }
+
+            res.json(toggledItem);
+        } catch (error) {
+            res.status(500).json({ error: 'Error al actualizar el item' });
         }
     }
 }

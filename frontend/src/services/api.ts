@@ -10,17 +10,11 @@ const api = axios.create({
 });
 
 export const itemAPI = {
-    // Obtener todos los items
     getAllItems: () => api.get('/items'),
-
-    // Crear un nuevo item
     createItem: (item: { nombre: string; cantidad: number }) =>
         api.post('/items', item),
-
-    // Actualizar un item
-    updateItem: (id: number, data: { comprado?: boolean; nombre?: string; cantidad?: number }) =>
+    updateItem: (id: string, data: { comprado?: boolean; nombre?: string; cantidad?: number }) =>
         api.put(`/items/${id}`, data),
-
-    // Eliminar un item
-    deleteItem: (id: number) => api.delete(`/items/${id}`),
+    toggleItem: (id: string) => api.patch(`/items/${id}/toggle`),
+    deleteItem: (id: string) => api.delete(`/items/${id}`),
 };
