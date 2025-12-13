@@ -14,7 +14,7 @@ Aplicación **full-stack** de lista de compras desarrollada con:
 ### 1️⃣ Clonar el repositorio (o una rama específica)
 
 ```bash
-git clone -b nombre-de-tu-rama https://github.com/MostachoteRex/prueba_tecnica_mini_aplicacion/tree/mongo
+git clone -b mongo https://github.com/MostachoteRex/prueba_tecnica_mini_aplicacion
 cd shopping-list-app
 ```
 
@@ -33,10 +33,8 @@ Esto iniciará automáticamente:
 
 - **Frontend:** http://localhost:3000  
 - **Backend:** http://localhost:3001/api/items  
-
-✔ No necesitas instalar Node  
+  
 ✔ No necesitas MongoDB local  
-✔ Funciona igual en cualquier equipo  
 
 ---
 
